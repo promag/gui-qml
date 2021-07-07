@@ -27,10 +27,12 @@ QT_FORWARD_DECLARE_CLASS(QQmlApplicationEngine)
 class QmlBitcoinApplication: public QGuiApplication
 {
     Q_OBJECT
+    Q_PROPERTY(ClientModel* client READ clientModel NOTIFY clientModelChanged)
 public:
     explicit QmlBitcoinApplication();
     ~QmlBitcoinApplication();
 
+    ClientModel* clientModel() const { return m_client_model; }
 #ifdef ENABLE_WALLET
     /// Create payment server
     void createPaymentServer();
@@ -42,7 +44,7 @@ public:
     /// Initialize prune setting
     void InitPruneSetting(int64_t prune_MiB);
     /// Create main window
-    void createWindow(const NetworkStyle *networkStyle);
+    void createWindow();
     /// Create splash screen
     // void createSplashScreen(const NetworkStyle *networkStyle);
     /// Basic initialization, before starting initialization/shutdown thread. Return true on success.
@@ -81,12 +83,13 @@ Q_SIGNALS:
     void requestedInitialize();
     void requestedShutdown();
     void splashFinished();
+    void clientModelChanged(ClientModel* client_model);
     // void windowShown(BitcoinGUI* window);
 
 public:
     QThread *coreThread;
     OptionsModel *optionsModel;
-    ClientModel *clientModel;
+    ClientModel* m_client_model{nullptr};
     //BitcoinGUI *window;
     //QTimer *pollShutdownTimer;
 #ifdef ENABLE_WALLET

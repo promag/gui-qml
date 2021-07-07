@@ -51,6 +51,7 @@
 #include <QLocale>
 #include <QMessageBox>
 #include <QQmlApplicationEngine>
+#include <QQmlContext>
 #include <QSettings>
 #include <QThread>
 #include <QTimer>
@@ -92,6 +93,8 @@ static void RegisterMetaTypes()
     qRegisterMetaType<std::function<void()>>("std::function<void()>");
     qRegisterMetaType<QMessageBox::Icon>("QMessageBox::Icon");
     qRegisterMetaType<interfaces::BlockAndHeaderTipInfo>("interfaces::BlockAndHeaderTipInfo");
+
+    qmlRegisterUncreatableType<ClientModel>("BitcoinCore", 1, 0, "ClientModel", "Internal type");
 }
 
 static QString GetLangTerritory()
@@ -207,9 +210,6 @@ QmlBitcoinApplication::QmlBitcoinApplication():
     QGuiApplication(qt_argc, const_cast<char **>(&qt_argv)),
     coreThread(nullptr),
     optionsModel(nullptr),
-    clientModel(nullptr),
-    //window(nullptr),
-    // pollShutdownTimer(nullptr),
     returnValue(0),
     platformStyle(nullptr)
 {
@@ -259,8 +259,17 @@ void QmlBitcoinApplication::createOptionsModel(bool resetSettings)
     optionsModel = new OptionsModel(this, resetSettings);
 }
 
-void QmlBitcoinApplication::createWindow(const NetworkStyle *networkStyle)
+void QmlBitcoinApplication::createWindow()
 {
+    m_engine = std::make_unique<QQmlApplicationEngine>();
+    qmlRegisterModule("BitcoinCore", 1, 0);
+    m_engine->rootContext()->setContextProperty("app", this);
+    m_engine->load(QUrl(QStringLiteral("qrc:///qml/pages/stub.qml")));
+    if (m_engine->rootObjects().isEmpty()) {
+        qDebug() << "Failed to load qml";
+        quit();
+    }
+
     // window = new BitcoinGUI(node(), platformStyle, networkStyle, nullptr);
     //
     // pollShutdownTimer = new QTimer(window);
@@ -355,8 +364,12 @@ void QmlBitcoinApplication::requestShutdown()
     // window->setClientModel(nullptr);
     // pollShutdownTimer->stop();
 
-    delete clientModel;
-    clientModel = nullptr;
+    {
+        auto client_model = m_client_model;
+        m_client_model = nullptr;
+        Q_EMIT clientModelChanged(nullptr);
+        delete client_model;
+    }
 
     // Request shutdown from core thread
     Q_EMIT requestedShutdown();
@@ -371,11 +384,12 @@ void QmlBitcoinApplication::initializeResult(bool success, interfaces::BlockAndH
     {
         // Log this only after AppInitMain finishes, as then logging setup is guaranteed complete
         qInfo() << "Platform customization:" << platformStyle->getName();
-        clientModel = new ClientModel(node(), optionsModel);
-        // window->setClientModel(clientModel, &tip_info);
+        m_client_model = new ClientModel(node(), optionsModel);
+        // window->setClientModel(m_client_model, &tip_info);
+        Q_EMIT clientModelChanged(m_client_model);
 #ifdef ENABLE_WALLET
         if (WalletModel::isWalletEnabled()) {
-            m_wallet_controller = new WalletController(*clientModel, platformStyle, this);
+            m_wallet_controller = new WalletController(*m_client_model, platformStyle, this);
             // window->setWalletController(m_wallet_controller);
             if (paymentServer) {
                 paymentServer->setOptionsModel(optionsModel);
@@ -387,7 +401,7 @@ void QmlBitcoinApplication::initializeResult(bool success, interfaces::BlockAndH
         // If -min option passed, start window minimized (iconified) or minimized to tray
         if (!gArgs.GetBoolArg("-min", false)) {
             window->show();
-        } else if (clientModel->getOptionsModel()->getMinimizeToTray() && window->hasTrayIcon()) {
+        } else if (m_client_model->getOptionsModel()->getMinimizeToTray() && window->hasTrayIcon()) {
             // do nothing as the window is managed by the tray icon
         } else {
             window->showMinimized();
@@ -411,15 +425,6 @@ void QmlBitcoinApplication::initializeResult(bool success, interfaces::BlockAndH
         }
 #endif
         // pollShutdownTimer->start(200);
-
-        m_engine = std::make_unique<QQmlApplicationEngine>();
-        qmlRegisterSingletonInstance("BitcoinCore", 1, 0, "ClientModel", clientModel);
-
-        m_engine->load(QUrl(QStringLiteral("qrc:///qml/pages/stub.qml")));
-        if (m_engine->rootObjects().isEmpty()) {
-            qDebug() << "Failed to load qml";
-            quit();
-        }
     } else {
         Q_EMIT splashFinished(); // Make sure splash screen doesn't stick around during shutdown
         quit(); // Exit first main loop invocation
@@ -592,6 +597,8 @@ int QmlGuiMain(int argc, char* argv[])
     // Re-initialize translations after changing application name (language in network-specific settings can be different)
     initTranslations(qtTranslatorBase, qtTranslator, translatorBase, translator);
 
+    app.createWindow();
+
 #ifdef ENABLE_WALLET
     /// 8. URI IPC sending
     // - Do this early as we don't want to bother initializing if we are just calling IPC
@@ -637,8 +644,6 @@ int QmlGuiMain(int argc, char* argv[])
     int rv = EXIT_SUCCESS;
     try
     {
-        app.createWindow(networkStyle.data());
-
         // Perform base initialization before spinning up initialization/shutdown thread
         // This is acceptable because this function only contains steps that are quick to execute,
         // so the GUI thread won't be held up.

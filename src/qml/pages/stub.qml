@@ -13,40 +13,11 @@ ApplicationWindow {
     minimumHeight: 450
     visible: true
 
-    property var now
-    property var block_height
-    property var block_time
 
-    Timer {
-        repeat: true
-        running: true
-        interval: 500
-        onTriggered: now = Date.now() / 1000
-    }
-
-    Connections {
-        target: ClientModel
-        function onNumBlocksChanged(count, blockDate, nVerificationProgress, header, sync_state) {
-            block_height = count;
-            block_time = blockDate.getTime() / 1000
-        }
-    }
-
-    property real angle: ((now - block_time) * 360 / 600) || 0
     Test {
         anchors.centerIn: parent
         width: 300 - 10
         height: 300 - 10
-        startAngle: -90
-        sweepAngle: angle
-    }
-    Label {
-        anchors.centerIn: parent
-        color: 'white'
-        Layout.alignment: Qt.AlignCenter
-        font.pixelSize: 30
-        horizontalAlignment: Qt.AlignCenter
-        text: block_height || '...'
     }
 
     component Segment: ShapePath {
@@ -68,6 +39,36 @@ ApplicationWindow {
 
     component Test: Control {
         id: self
+
+        property var now
+        property var block_height
+        property var block_time
+
+        Timer {
+            repeat: true
+            running: true
+            interval: 500
+            onTriggered: now = Date.now() / 1000
+        }
+
+        Connections {
+            target: app.client
+            function onNumBlocksChanged(count, blockDate, nVerificationProgress, header, sync_state) {
+                block_height = count;
+                block_time = blockDate.getTime() / 1000
+            }
+        }
+
+        property real angle: ((now - block_time) * 360 / 600) || 0
+        Label {
+            anchors.centerIn: parent
+            color: 'white'
+            Layout.alignment: Qt.AlignCenter
+            font.pixelSize: 30
+            horizontalAlignment: Qt.AlignCenter
+            text: block_height || '...'
+        }
+
         property alias startAngle: arc.startAngle
         property alias sweepAngle: arc.sweepAngle
         property real strokeWidth: 5
@@ -113,6 +114,9 @@ ApplicationWindow {
                     moveToStart: true
                     centerX: width / 2
                     centerY: height / 2
+                    startAngle: -90
+                    sweepAngle: self.angle
+
                 }
                 strokeColor: 'orange'
                 strokeWidth: self.strokeWidth - 4
