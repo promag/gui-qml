@@ -265,10 +265,7 @@ void QmlBitcoinApplication::createWindow()
     qmlRegisterModule("BitcoinCore", 1, 0);
     m_engine->rootContext()->setContextProperty("app", this);
     m_engine->load(QUrl(QStringLiteral("qrc:///qml/pages/stub.qml")));
-    if (m_engine->rootObjects().isEmpty()) {
-        qDebug() << "Failed to load qml";
-        quit();
-    }
+    assert(!m_engine->rootObjects().isEmpty());
 
     // window = new BitcoinGUI(node(), platformStyle, networkStyle, nullptr);
     //

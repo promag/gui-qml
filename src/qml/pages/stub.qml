@@ -42,7 +42,9 @@ ApplicationWindow {
 
         property var now
         property var block_height
-        property var block_time
+        property var block_time: 0
+        property var xxx_state: 2
+        property var progress
 
         Timer {
             repeat: true
@@ -56,17 +58,19 @@ ApplicationWindow {
             function onNumBlocksChanged(count, blockDate, nVerificationProgress, header, sync_state) {
                 block_height = count;
                 block_time = blockDate.getTime() / 1000
+                xxx_state = sync_state
+                progress = nVerificationProgress
             }
         }
 
-        property real angle: ((now - block_time) * 360 / 600) || 0
+        property real angle: xxx_state === 2 ? ((now - block_time) * 360 / 600) : progress * 360
         Label {
             anchors.centerIn: parent
             color: 'white'
             Layout.alignment: Qt.AlignCenter
             font.pixelSize: 30
             horizontalAlignment: Qt.AlignCenter
-            text: block_height || '...'
+            text: xxx_state === 2 ? '#' + block_height : Math.round(progress*100) + '%'
         }
 
         property alias startAngle: arc.startAngle
