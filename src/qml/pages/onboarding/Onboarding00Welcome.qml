@@ -6,66 +6,52 @@
 
 import QtQuick 2.12
 import QtQuick.Controls 2.12
+import QtQuick.Layouts 1.12
 
-Column {
-    width: appTitle.width
-    spacing: 16
+Pane {
+    background: null
 
-    Image {
-        id: appLogo
-        anchors.horizontalCenter: parent.horizontalCenter
-        source: "image://images/app"
-        sourceSize.width: 128
-        sourceSize.height: 128
-    }
+    contentItem: ColumnLayout {
+        spacing: 16
 
-    Text {
-        id: appTitle
-        anchors.horizontalCenter: parent.horizontalCenter
-        text: "Bitcoin Core TnG"
-        font.pointSize: 36
-        color: "white"
-    }
+        Image {
+            Layout.alignment: Qt.AlignCenter
+            source: "image://images/app"
+            sourceSize.width: 128
+            sourceSize.height: 128
+        }
 
-    Text {
-        id: welcomeText
-        width: parent.width
-        text: "Be part of the Bitcoin network."
-        horizontalAlignment: Text.AlignHCenter
-        wrapMode: Text.WordWrap
-        font.pointSize: 24
-        color: "white"
-    }
-
-    Button {
-        id: startButton
-        anchors.horizontalCenter: parent.horizontalCenter
-        width: parent.width
-        text: "Start"
-        font.pointSize: 20
-
-        contentItem: Text {
-            text: parent.text
-            font: parent.font
+        Label {
+            Layout.alignment: Qt.AlignCenter
+            text: "Bitcoin Core TnG"
+            font.pointSize: 36
             color: "white"
+        }
+
+        Label {
+            Layout.fillWidth: true
+            text: "Be part of the Bitcoin network."
             horizontalAlignment: Text.AlignHCenter
-            verticalAlignment: Text.AlignVCenter
+            wrapMode: Text.WordWrap
+            font.pointSize: 24
+            color: "white"
         }
 
-        background: Rectangle {
-            anchors.horizontalCenter: parent.horizontalCenter
-            width: parent.width
-            implicitHeight: 60
-            color: "orange"
-            radius: 4
+        Button {
+            Layout.fillWidth: true
+            text: "Start"
+            font.pointSize: 20
+            background: Rectangle {
+                color: "orange"
+                radius: 4
+            }
         }
-    }
 
-    Text {
-        id: opensourceNote
-        anchors.horizontalCenter: parent.horizontalCenter
-        text: "100% open-source & open-design"
-        font.pointSize: 15
-        color: "white"
+        Label {
+            Layout.alignment: Qt.AlignCenter
+            text: "100% open-source & open-design"
+            font.pointSize: 15
+            color: "white"
+        }
     }
 }

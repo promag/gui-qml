@@ -4,16 +4,15 @@
 
 import QtQuick 2.12
 import QtQuick.Controls 2.12
-import QtQuick.Layouts 1.11
+import QtQuick.Layouts 1.12
 import "../components" as BitcoinCoreComponents
 import "onboarding" as BitcoinCoreOnboarding
-
 
 ApplicationWindow {
     id: appWindow
     title: "Bitcoin Core TnG"
-    minimumWidth: 750
-    minimumHeight: 450
+    minimumWidth: layout.implicitWidth
+    minimumHeight: layout.implicitHeight
     width: 800
     height: 800
     background: Rectangle {
@@ -23,8 +22,11 @@ ApplicationWindow {
 
     Component.onCompleted: nodeModel.startNodeInitializionThread();
 
-    BitcoinCoreOnboarding.Onboarding00Welcome {
-        id: welcomePage
-        anchors.centerIn: parent
+    ColumnLayout {
+        id: layout
+        anchors.fill: parent
+        BitcoinCoreOnboarding.Onboarding00Welcome {
+            Layout.alignment: Qt.AlignCenter
+        }
     }
 }
