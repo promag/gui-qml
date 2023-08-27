@@ -11,8 +11,8 @@ Pane {
     property alias centerItem: center_section.contentItem
     property alias rightItem: right_section.contentItem
 
-    background: null
-    padding: 0
+    background: Rectangle { color: 'blue'; opacity: 0.2 }
+    padding: 2
     contentItem: RowLayout {
         Div {
             id: left_div
@@ -45,20 +45,22 @@ Pane {
         Layout.alignment: Qt.AlignCenter
         Layout.fillWidth: true
         Layout.minimumWidth: implicitWidth
-        background: null
-        padding: 0
+        background: Rectangle { color: 'red'; opacity: 0.2 }
+        padding: 2
     }
 
     component Section: Pane {
         Layout.alignment: Qt.AlignCenter
         Layout.minimumWidth: implicitWidth
-        background: null
-        padding: 0
+        background: Rectangle { color: 'red'; opacity: 0.2 }
+        padding: 2
     }
 
-    component Spacer: Item {
+    component Spacer: Rectangle {
         Layout.alignment: Qt.AlignCenter
         Layout.fillWidth: true
-        height: 1
+        height: 5
+        color: 'green'
+        opacity: 0.2
     }
 }

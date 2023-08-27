@@ -23,7 +23,10 @@ Page {
         centerItem: Header {
             headerBold: true
             headerSize: 18
-            header: qsTr("Peers")
+            header: qsTr("Really really really long title Peers")
+        }
+        rightItem: Button {
+            text: "really really really really long button"
         }
     }
 
