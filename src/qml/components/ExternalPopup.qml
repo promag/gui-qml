@@ -10,8 +10,8 @@ import org.bitcoincore.qt 1.0
 import "../controls"
 
 Popup {
-    id: externalConfirmPopup
-    property string link: ""
+    id: root
+    required property string link
     modal: true
     padding: 0
 
@@ -20,8 +20,7 @@ Popup {
         radius: 10
     }
 
-    ColumnLayout {
-        anchors.fill: parent
+    contentItem: ColumnLayout {
         spacing: 0
 
         NavigationBar {
@@ -51,7 +50,7 @@ Popup {
                 header: qsTr("Do you want to open the following website in your browser?")
                 headerBold: false
                 headerSize: 18
-                description: ("\"" + externalConfirmPopup.link + "\"")
+                description: ("\"" + root.link + "\"")
                 descriptionMargin: 3
             }
             Loader {
@@ -72,7 +71,7 @@ Popup {
                 Layout.fillWidth: true
                 Layout.minimumWidth: 150
                 onClicked: {
-                    externalConfirmPopup.close()
+                    root.close()
                 }
             }
             ContinueButton {
@@ -80,8 +79,8 @@ Popup {
                 Layout.fillWidth: true
                 Layout.minimumWidth: 150
                 onClicked: {
-                    Qt.openUrlExternally(externalConfirmPopup.link)
-                    externalConfirmPopup.close()
+                    Qt.openUrlExternally(root.link)
+                    root.close()
                 }
             }
         }
@@ -97,7 +96,7 @@ Popup {
                 Layout.fillWidth: true
                 Layout.minimumWidth: 150
                 onClicked: {
-                    externalConfirmPopup.close()
+                    root.close()
                 }
             }
             ContinueButton {
@@ -105,8 +104,8 @@ Popup {
                 Layout.fillWidth: true
                 Layout.minimumWidth: 150
                 onClicked: {
-                    Qt.openUrlExternally(externalConfirmPopup.link)
-                    externalConfirmPopup.close()
+                    Qt.openUrlExternally(root.link)
+                    root.close()
                 }
             }
         }

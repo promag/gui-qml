@@ -8,6 +8,7 @@ import QtQuick.Layouts 1.15
 import "../controls"
 
 ColumnLayout {
+    id: root
     spacing: 4
     Setting {
         id: websiteLink
@@ -72,15 +73,5 @@ ColumnLayout {
             }
         }
         onClicked: loadedItem.clicked()
-    }
-    ExternalPopup {
-        id: confirmPopup
-        anchors.centerIn: Overlay.overlay
-        width: parent.width
-    }
-
-    function openPopup(link) {
-        confirmPopup.link = link
-        confirmPopup.open()
     }
 }

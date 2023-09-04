@@ -102,4 +102,16 @@ ApplicationWindow {
             }
         }
     }
+
+    Component {
+        id: external_popup
+        ExternalPopup {
+            visible: true
+            anchors.centerIn: Overlay.overlay
+        }
+    }
+
+    function openPopup(link) {
+        external_popup.createObject(appWindow, { link })
+    }
 }
